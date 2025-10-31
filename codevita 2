@@ -1,0 +1,72 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    vector<string> lines;
+    string s;
+    // Read entire stdin preserving internal spaces (one line per instruction)
+    while (getline(cin, s)) lines.push_back(s);
+
+    size_t i = 0;
+    auto skip_blanks = [&](void) {
+        while (i < lines.size() && string(lines[i]).find_first_not_of(" \t\r") == string::npos) ++i;
+    };
+
+    skip_blanks();
+    if (i == lines.size()) { cout << 0 << "\n"; return 0; }
+    int N = stoi(lines[i]);
+    ++i;
+
+    skip_blanks();
+    if (i == lines.size() || string(lines[i]).size() == 0 ||
+        string_view(lines[i]).substr(0, 8) != "shuffled") {
+        cerr << "Expected 'shuffled'\n";
+        return 0;
+    }
+    ++i;
+
+    vector<string> shuffled;
+    shuffled.reserve(N);
+    for (int k = 0; k < N; ++k) {
+        if (i >= lines.size()) { cerr << "Not enough shuffled lines\n"; return 0; }
+        shuffled.push_back(lines[i++]);
+    }
+
+    skip_blanks();
+    if (i == lines.size() || string_view(lines[i]).substr(0, 8) != "original") {
+        cerr << "Expected 'original'\n";
+        return 0;
+    }
+    ++i;
+
+    vector<string> original;
+    original.reserve(N);
+    for (int k = 0; k < N; ++k) {
+        if (i >= lines.size()) { cerr << "Not enough original lines\n"; return 0; }
+        original.push_back(lines[i++]);
+    }
+
+    if (N <= 1) { cout << 0 << "\n"; return 0; }
+
+    unordered_map<string, int> pos;
+    pos.reserve(N * 2);
+    for (int idx = 0; idx < N; ++idx) pos[original[idx]] = idx;
+
+    vector<int> A;
+    A.reserve(N);
+    for (auto &t : shuffled) {
+        if (!pos.count(t)) { cout << 0 << "\n"; return 0; } // assume well-formed input
+        A.push_back(pos[t]);
+    }
+
+    int m = 0;
+    for (int j = 0; j < N - 1; ++j) if (A[j + 1] == A[j] + 1) ++m;
+
+    int missing = (N - 1) - m;
+    int moves = (missing + 1) / 2; // ceil
+    cout << moves << "\n";
+    return 0;
+}
