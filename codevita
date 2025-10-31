@@ -1,0 +1,76 @@
+import sys
+import math
+
+def main():
+    data = [line.rstrip("\n") for line in sys.stdin]
+
+    # Read N
+    i = 0
+    # Skip leading empties just in case
+    while i < len(data) and data[i].strip() == "":
+        i += 1
+    if i == len(data):
+        print(0)
+        return
+    N = int(data[i].strip())
+    i += 1
+
+    # Expect the word "shuffled"
+    while i < len(data) and data[i].strip() == "":
+        i += 1
+    if i == len(data) or data[i].strip().lower() != "shuffled":
+        raise ValueError('Expected "shuffled"')
+    i += 1
+
+    # Read N shuffled lines (preserve spaces inside lines)
+    shuffled = []
+    for _ in range(N):
+        if i >= len(data):
+            raise ValueError("Not enough shuffled lines")
+        shuffled.append(data[i])
+        i += 1
+
+    # Expect the word "original"
+    while i < len(data) and data[i].strip() == "":
+        i += 1
+    if i == len(data) or data[i].strip().lower() != "original":
+        raise ValueError('Expected "original"')
+    i += 1
+
+    # Read N original lines
+    original = []
+    for _ in range(N):
+        if i >= len(data):
+            raise ValueError("Not enough original lines")
+        original.append(data[i])
+        i += 1
+
+    if N <= 1:
+        print(0)
+        return
+
+    # Map each original instruction to its index.
+    # Assumes instructions are unique; if duplicates exist, behavior is undefined.
+    pos = {instr: idx for idx, instr in enumerate(original)}
+
+    # Convert shuffled list to position array in original
+    try:
+        A = [pos[x] for x in shuffled]
+    except KeyError as e:
+        # If any shuffled instruction does not exist in original, problem is malformed.
+        # You can choose to print an error or handle differently; here we assume valid input.
+        print(0)
+        return
+
+    # Count correct adjacencies already present
+    m = 0
+    for j in range(N - 1):
+        if A[j + 1] == A[j] + 1:
+            m += 1
+
+    missing = (N - 1) - m
+    moves = (missing + 1) // 2  # ceil(missing/2) without floats
+    print(moves)
+
+if __name__ == "__main__":
+    main()
