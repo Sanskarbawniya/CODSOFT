@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include <ctime>
 
+
 int main() {
     std::srand(static_cast<unsigned>(std::time(0)));  
     int target = std::rand() % 100 + 1;               
@@ -83,3 +84,4 @@ int main(){
     return 0;
 
 }
+
